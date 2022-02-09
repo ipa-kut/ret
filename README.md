@@ -14,11 +14,11 @@ It also starts the Monitor thread, which has the following logic:
 
 ### Expected Socket Log Format
 The Monitor expects the log message in a very strict format from either the RPi or the Robot:   
-`"<prbt/rpi>;<wall_time_float>;<button1/button2>"`   
+`"<prbt/rpi>;<wall_time_float>;<1/2>"`   
 Ex: 
 
-The PRBT should log something like - `"prbt;1623456.1243;button1"`   
-The RPi should log something like - `"rpi;1623461.4321;button1"`   
+The PRBT should log something like - `"prbt;1623456.1243;1"`   
+The RPi should log something like - `"rpi;1623461.4321;1"`   
 
 Furthermore, the **RPi HAS TO LOG THE SAME EVENT 0.5s AFTER THE ROBOT LOGS IT**. This is because of the aforementioned Monitor logic, which always expects the Robot log first, followed by RPi log second.
 

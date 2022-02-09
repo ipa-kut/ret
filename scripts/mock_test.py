@@ -3,8 +3,8 @@ import socket
 import sys
 import time
 
-host = "169.254.60.100" # Used for running on Pilz PC
-# host = "127.0.0.1" # Used for testing on local machine
+#host = "169.254.60.100" # Used for running on Pilz PC
+host = "127.0.0.1" # Used for testing on local machine
 port = 65432
 
 if __name__ == "__main__":
@@ -16,11 +16,21 @@ if __name__ == "__main__":
         conn1.connect((host, port))
         print("Creating conn2") # Mocks the RPi logs
         conn2.connect((host, port))
-        for i in range(1,11):
-            conn1.send("prbt;"+str(time.time())+";button"+str((i%2)+1))
+        for i in range(1,6):
+            conn1.send("prbt;"+repr(time.time())+";"+str((i%2)+1))
             time.sleep(0.5)
-            conn2.send("rpi;"+str(time.time())+";button"+str((i%2)+1))
+            conn2.send("rpi;"+repr(time.time())+";"+str((i%2)+1))
             time.sleep(0.5)
+        # Now simulate confirmation mismatch
+        conn1.send("prbt;"+repr(time.time())+";"+str((i%2)+1))
+        time.sleep(0.5)
+        conn2.send("rpi;"+repr(time.time())+";"+str(2-(i%2)))
+        time.sleep(0.5)
+        # Now simulate confirmation timeout
+        conn1.send("prbt;"+repr(time.time())+";"+str((i%2)+1))
+        time.sleep(3) # Should be greater than self.allowed_rpi_confirmation_delay in ret_server.py
+        conn2.send("rpi;"+repr(time.time())+";"+str((i%2)+1))
+        time.sleep(0.5)
     except socket.error:
         print("A connection has failed.")
         conn1.close()

@@ -5,6 +5,9 @@ import socket
 import thread
 import threading
 import sys
+from influxdb import InfluxDBClient
+from datetime import datetime
+import time
 
 class RET_Server():
     def __init__(self):
@@ -17,6 +20,12 @@ class RET_Server():
         self.condi_prbt = threading.Condition()
         self.condi_rpi = threading.Condition()
 
+        print("Initialising InfluxDB")
+        self.client = InfluxDBClient(host="localhost",port="8086",
+            username='ret', password='asdf', database="RET_Test")
+        self.client.create_database("RET_Test")
+        self.client.switch_database("RET_Test")
+
         print('Spawning Monitor')
         monitor = threading.Thread(name="monitor", target=self.monitoring_thread)
         monitor.daemon = True
@@ -24,8 +33,8 @@ class RET_Server():
 
         print("Starting RET Server")
         self.s = socket.socket()
-        self.host = "169.254.60.100" # Used for running on Pilz PC
-        # self.host = "127.0.0.1" # Used for testing on local machine
+        # self.host = "169.254.60.100" # Used for running on Pilz PC
+        self.host = "127.0.0.1" # Used for testing on local machine
         self.port = 65432
         self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.s.bind((self.host, self.port))
@@ -58,7 +67,7 @@ class RET_Server():
                 with self.condi_prbt:
                     print("Waiting for log from PRBT")
                     self.condi_prbt.wait()
-                    print("Recevied PRBT log: {} - {}"
+                    print("Recevied PRBT log @{} - button{}"
                         .format(self.prbt_log[0], self.prbt_log[1]))
                     try:
                         prbt_time = float(self.prbt_log[0])
@@ -71,7 +80,7 @@ class RET_Server():
                 # Then wait for log from RPI - this should always come second
                 with self.condi_rpi:
                     self.condi_rpi.wait()
-                    print("Recevied RPI log: {} - {}".format(self.rpi_log[0], self.rpi_log[1]))
+                    print("Recevied RPI log @{} - button{}".format(self.rpi_log[0], self.rpi_log[1]))
                     try:
                         rpi_time = float(self.rpi_log[0])
                         rpi_button = self.rpi_log[1]
@@ -81,16 +90,20 @@ class RET_Server():
 
                 # Evaluate if the logs are fine
                 if prbt_button != rpi_button:
-                    print("PRBT reported {} press but RPI reported {} press. Fault!!"
-                        .format(prbt_button, rpi_button))
+                    event_description = "PRBT: " + prbt_button + \
+                        " vs RPI: " + rpi_button
+                    event_type = "confirmation_mismatch"
+                    print("{}: {}".format(event_type, event_description))
+                    self.write_event_to_influxdb(event_type, event_description)
                     print("")
-                    ## TODO: Write to InfluxDB
                 elif abs(prbt_time - rpi_time) > self.allowed_rpi_confirmation_delay:
-                    print("PRBT - RPI Confirmation took {}, \
-                        which longer than the allowed delay {}. Fault!!"
-                        .format(abs(prbt_time - rpi_time), self.allowed_rpi_confirmation_delay))
+                    event_description = "Actual: " + repr(abs(prbt_time - rpi_time)) + \
+                        "s vs Allowed: " \
+                             + repr(self.allowed_rpi_confirmation_delay) + "s."
+                    event_type = "confimration_timeout"
+                    print("{}: {}".format(event_type, event_description))
+                    self.write_event_to_influxdb(event_type, event_description)
                     print("")
-                    ## TODO: Write to InfluxDB
                 else:
                     print("RPI Succesfully confirmed PRBT")
                     print("")
@@ -107,17 +120,20 @@ class RET_Server():
                 if msg:
                     count += 1
                     msg_parts = msg.split(";")
-                    print(msg_parts[0], msg_parts[1], msg_parts[2])
+                    # print(msg_parts[0], msg_parts[1], msg_parts[2])
+                    # msg parts are:
+                    # 0 -> source of log. Ex: "prbt" or "rpi"
+                    # 1 -> epoch time. Ex: "1234567.4567"
+                    # 2 -> button number that was pressed. Ex: "1" or "2"
                     if msg_parts[0] == "prbt":
                         with self.condi_prbt:
                             self.prbt_log = (msg_parts[1], msg_parts[2])
-                            ## TODO: Write to InfluxDB
                             self.condi_prbt.notifyAll()
                     elif msg_parts[0] == "rpi":
                         with self.condi_rpi:
                             self.rpi_log = (msg_parts[1], msg_parts[2])
-                            ## TODO: Write to InfluxDB
                             self.condi_rpi.notifyAll()
+                    self.write_log_to_influxdb(msg_parts)
             except socket.error as socketerror:
                 print (count, " Lost connection to: ", addr)  
                 clientsocket.close()
@@ -126,6 +142,33 @@ class RET_Server():
                 print('Socket server Keyboard Interrupted')
                 clientsocket.close()
                 return
+
+    def write_log_to_influxdb(self, log):
+        json = [{
+            "measurement": "RET_Logs_"+datetime.today().strftime('%Y-%m-%d'),
+            "tags": {
+                "source": log[0]
+            },
+            "time": datetime.utcfromtimestamp(float(log[1])).strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+            "fields": {
+                "datetime": datetime.utcfromtimestamp(float(log[1])).strftime('%Y-%m-%d %H:%M:%S.%fZ')[:-5],
+                "button": int(log[2]),
+            }
+        }]
+        self.client.write_points(json)
+
+    def write_event_to_influxdb(self, event_type, event_description):
+        json = [{
+            "measurement": "RET_Events_"+datetime.today().strftime('%Y-%m-%d'),
+            "tags": {
+                "type": event_type,
+            },
+            "time": datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+            "fields": {
+                "description": event_description,
+            }
+        }]
+        self.client.write_points(json)
 
 if __name__=="__main__":
     server = RET_Server()
