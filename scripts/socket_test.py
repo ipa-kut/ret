@@ -1,32 +1,28 @@
-from geometry_msgs.msg import Point
-from pilz_robot_programming import *
-import math
-import rospy
-import socket, sys
+#!/usr/bin/env python
+import socket
+import sys
 import time
 
-
-
-__SOCKET_HOST__ = '169.254.60.100'
-__SOCKET_PORT__ = 65432
+#host = "169.254.60.100"
+host = "127.0.0.1"
+port = 65432
 
 if __name__ == "__main__":
-
-    connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    print("Creating socket object")
+    conn1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    conn2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        connection.connect((__SOCKET_HOST__, __SOCKET_PORT__))
-        print("connection started")
-        time.sleep(1)
-        connection.sendall("asdf")
-        time.sleep(1)
-        connection.sendall("asdf")
-        time.sleep(1)
-        connection.sendall("asdf")
-        time.sleep(1)
-        connection.sendall("asdf")
-        
+        print("Creating conn1")
+        conn1.connect((host, port))
+        print("Creating conn2")
+        conn2.connect((host, port))
+        for i in range(1,11):
+            conn1.send("prbt;"+str(time.time())+";button"+str((i%2)+1))
+            time.sleep(0.5)
+            conn2.send("rpi;"+str(time.time())+";button"+str((i%2)+1))
+            time.sleep(0.5)
     except socket.error:
-        print("Connection has failed.")
-        connection.close()
+        print("A connection has failed.")
+        conn1.close()
         sys.exit(0)
-    print("Connection established with the server.")
+    print("Script done")
