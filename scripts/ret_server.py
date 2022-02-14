@@ -11,13 +11,13 @@ import time
 
 class RET_Server():
     def __init__(self):
-        self.prbt_log = None
+        self.robot_log = None
         self.rpi_log = None
-        # Allowed delay between PRBT logging button press and RPI confirming it.
+        # Allowed delay between robot logging button press and RPI confirming it.
         # If the confirmation takes longer than this, it is to be identified as a fault.
         self.allowed_rpi_confirmation_delay = 2.0 
 
-        self.condi_prbt = threading.Condition()
+        self.condi_robot = threading.Condition()
         self.condi_rpi = threading.Condition()
 
         print("Initialising InfluxDB")
@@ -51,11 +51,11 @@ class RET_Server():
                 self.s.close()
                 sys.exit()
 
-    # @brief Monitor expects that PRBT log always comes first. This HAS to be enforced on RPI side by
+    # @brief Monitor expects that robot log always comes first. This HAS to be enforced on RPI side by
     # intentionally adding a 0.5s delay before sending socket log.
     def monitoring_thread(self):
-        prbt_time = 0
-        prbt_button = ""
+        robot_time = 0
+        robot_button = ""
         rpi_time = 0
         rpi_button = ""
         loop = 1
@@ -63,18 +63,18 @@ class RET_Server():
             print("------------Loop {}----------------".format(loop))
             loop += 1
             try:
-                # Wait for log from PRBT - this should always come first
-                with self.condi_prbt:
-                    print("Waiting for log from PRBT")
-                    self.condi_prbt.wait()
-                    print("Recevied PRBT log @{} - button{}"
-                        .format(self.prbt_log[0], self.prbt_log[1]))
+                # Wait for log from robot - this should always come first
+                with self.condi_robot:
+                    print("Waiting for log from Robot")
+                    self.condi_robot.wait()
+                    print("Recevied Robot log @{} - button{}"
+                        .format(self.robot_log[0], self.robot_log[1]))
                     try:
-                        prbt_time = float(self.prbt_log[0])
-                        prbt_button = self.prbt_log[1]
+                        robot_time = float(self.robot_log[0])
+                        robot_button = self.robot_log[1]
                     except ValueError:
-                        print("Received PRBT time {} could not be cast to float"
-                            .format(self.prbt_log[1]))
+                        print("Received Robot time {} could not be cast to float"
+                            .format(self.robot_log[1]))
                     print("Now wait for RPI confirmation")
 
                 # Then wait for log from RPI - this should always come second
@@ -89,15 +89,15 @@ class RET_Server():
                             .format(self.rpi_log[0]))
 
                 # Evaluate if the logs are fine
-                if prbt_button != rpi_button:
-                    event_description = "PRBT: " + prbt_button + \
+                if robot_button != rpi_button:
+                    event_description = "Robot: " + robot_button + \
                         " vs RPI: " + rpi_button
                     event_type = "confirmation_mismatch"
                     print("{}: {}".format(event_type, event_description))
                     self.write_event_to_influxdb(event_type, event_description)
                     print("")
-                elif abs(prbt_time - rpi_time) > self.allowed_rpi_confirmation_delay:
-                    event_description = "Actual: " + repr(abs(prbt_time - rpi_time)) + \
+                elif abs(robot_time - rpi_time) > self.allowed_rpi_confirmation_delay:
+                    event_description = "Actual: " + repr(abs(robot_time - rpi_time)) + \
                         "s vs Allowed: " \
                              + repr(self.allowed_rpi_confirmation_delay) + "s."
                     event_type = "confimration_timeout"
@@ -105,7 +105,7 @@ class RET_Server():
                     self.write_event_to_influxdb(event_type, event_description)
                     print("")
                 else:
-                    print("RPI Succesfully confirmed PRBT")
+                    print("RPI Succesfully confirmed Robot")
                     print("")
 
             except KeyboardInterrupt:
@@ -122,18 +122,25 @@ class RET_Server():
                     msg_parts = msg.split(";")
                     # print(msg_parts[0], msg_parts[1], msg_parts[2])
                     # msg parts are:
-                    # 0 -> source of log. Ex: "prbt" or "rpi"
+                    # 0 -> source of log. Options: "prbt", "rpi", "ur_native" and "ur_ros"
                     # 1 -> epoch time. Ex: "1234567.4567"
-                    # 2 -> button number that was pressed. Ex: "1" or "2"
-                    if msg_parts[0] == "prbt":
-                        with self.condi_prbt:
-                            self.prbt_log = (msg_parts[1], msg_parts[2])
-                            self.condi_prbt.notifyAll()
+                    # 2 -> button number that was pressed. Options: "1" or "2"
+                    if msg_parts[0] == "prbt" \
+                        or msg_parts[0] == "ur_native" \
+                        or msg_parts[0] == "ur_ros":
+                        with self.condi_robot:
+                            self.robot_log = (msg_parts[1], msg_parts[2])
+                            self.condi_robot.notifyAll()
+                        self.write_log_to_influxdb(msg_parts)
                     elif msg_parts[0] == "rpi":
                         with self.condi_rpi:
                             self.rpi_log = (msg_parts[1], msg_parts[2])
                             self.condi_rpi.notifyAll()
-                    self.write_log_to_influxdb(msg_parts)
+                        self.write_log_to_influxdb(msg_parts)
+                    else:
+                        print("Received log from unknown source {}, closing socket".format(msg_parts[0]))
+                        clientsocket.close()
+                        return
             except socket.error as socketerror:
                 print (count, " Lost connection to: ", addr)  
                 clientsocket.close()
