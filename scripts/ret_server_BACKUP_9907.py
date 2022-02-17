@@ -124,6 +124,7 @@ class RET_Server():
                     # msg parts are:
                     # 0 -> source of log. Options: "prbt", "rpi", "ur_native" and "ur_ros"
                     # 1 -> epoch time. Ex: "1234567.4567"
+<<<<<<< HEAD
                     # 2 -> button number that was pressed. Ex: "1" or "2"
                     if msg_parts[0] == "prbt":
                         print("received the following data from the Robot: ")
@@ -131,17 +132,35 @@ class RET_Server():
                         with self.condi_prbt:
                             self.prbt_log = (msg_parts[1], msg_parts[2])
                             self.condi_prbt.notifyAll()
+=======
+                    # 2 -> button number that was pressed. Options: "1" or "2"
+                    if msg_parts[0] == "prbt" \
+                        or msg_parts[0] == "ur_native" \
+                        or msg_parts[0] == "ur_ros":
+                        with self.condi_robot:
+                            self.robot_log = (msg_parts[1], msg_parts[2])
+                            self.condi_robot.notifyAll()
+                        self.write_log_to_influxdb(msg_parts)
+>>>>>>> 7472c79d78534ef859d366c7221f540297986110
                     elif msg_parts[0] == "rpi":
                         print("received the following data from the RPI: ")
                         print(msg)
                         with self.condi_rpi:
                             self.rpi_log = (msg_parts[1], msg_parts[2])
                             self.condi_rpi.notifyAll()
+<<<<<<< HEAD
                     else: 
                         print("Could not manage the following input data")
                         print(msg)
                         
                     self.write_log_to_influxdb(msg_parts)
+=======
+                        self.write_log_to_influxdb(msg_parts)
+                    else:
+                        print("Received log from unknown source {}, closing socket".format(msg_parts[0]))
+                        clientsocket.close()
+                        return
+>>>>>>> 7472c79d78534ef859d366c7221f540297986110
             except socket.error as socketerror:
                 print (count, " Lost connection to: ", addr)  
                 clientsocket.close()

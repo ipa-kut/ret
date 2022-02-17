@@ -33,8 +33,8 @@ class RET_Server():
 
         print("Starting RET Server")
         self.s = socket.socket()
-        self.host = "10.4.11.132" # Used for running on Pilz PC
-        # self.host = "127.0.0.1" # Used for testing on local machine
+        # self.host = "169.254.60.100" # Used for running on Pilz PC
+        self.host = "127.0.0.1" # Used for testing on local machine
         self.port = 65432
         self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.s.bind((self.host, self.port))
@@ -124,24 +124,23 @@ class RET_Server():
                     # msg parts are:
                     # 0 -> source of log. Options: "prbt", "rpi", "ur_native" and "ur_ros"
                     # 1 -> epoch time. Ex: "1234567.4567"
-                    # 2 -> button number that was pressed. Ex: "1" or "2"
-                    if msg_parts[0] == "prbt":
-                        print("received the following data from the Robot: ")
-                        print(msg)
-                        with self.condi_prbt:
-                            self.prbt_log = (msg_parts[1], msg_parts[2])
-                            self.condi_prbt.notifyAll()
+                    # 2 -> button number that was pressed. Options: "1" or "2"
+                    if msg_parts[0] == "prbt" \
+                        or msg_parts[0] == "ur_native" \
+                        or msg_parts[0] == "ur_ros":
+                        with self.condi_robot:
+                            self.robot_log = (msg_parts[1], msg_parts[2])
+                            self.condi_robot.notifyAll()
+                        self.write_log_to_influxdb(msg_parts)
                     elif msg_parts[0] == "rpi":
-                        print("received the following data from the RPI: ")
-                        print(msg)
                         with self.condi_rpi:
                             self.rpi_log = (msg_parts[1], msg_parts[2])
                             self.condi_rpi.notifyAll()
-                    else: 
-                        print("Could not manage the following input data")
-                        print(msg)
-                        
-                    self.write_log_to_influxdb(msg_parts)
+                        self.write_log_to_influxdb(msg_parts)
+                    else:
+                        print("Received log from unknown source {}, closing socket".format(msg_parts[0]))
+                        clientsocket.close()
+                        return
             except socket.error as socketerror:
                 print (count, " Lost connection to: ", addr)  
                 clientsocket.close()
@@ -153,12 +152,10 @@ class RET_Server():
 
     def write_log_to_influxdb(self, log):
         json = [{
-            
             "measurement": "RET_Logs_"+datetime.today().strftime('%Y-%m-%d'),
             "tags": {
                 "source": log[0]
             },
-            
             "time": datetime.utcfromtimestamp(float(log[1])).strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
             "fields": {
                 "datetime": datetime.utcfromtimestamp(float(log[1])).strftime('%Y-%m-%d %H:%M:%S.%fZ')[:-5],
