@@ -3,8 +3,8 @@ import socket
 import sys
 import time
 
-#host = "169.254.60.100" # Used for running on Pilz PC
-host = "127.0.0.1" # Used for testing on local machine
+host ="10.4.11.132" # Used for running on Pilz PC
+#host = "127.0.0.1" # Used for testing on local machine
 port = 65432
 
 if __name__ == "__main__":
