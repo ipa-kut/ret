@@ -14,6 +14,8 @@
   <build_export_depend>roscpp</build_export_depend>
   <exec_depend>roscpp</exec_depend>
 
+  <depend>ur_manipulation</depend>
+
   <export>
   </export>
 

@@ -4,27 +4,16 @@
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "ret_application");
-  RETApplication app;
+  ros::NodeHandle nh;
+  RETApplication app(nh, argv[1], argv[2]);
 }
 
-RETApplication::RETApplication()
+RETApplication::RETApplication(ros::NodeHandle nh, std::string prompts, std::string robot):
+  nh_(nh),
+  prompts_(prompts),
+  robot_(robot)
 {
-  ros::NodeHandle nh;
-  ros::Publisher chatter_pub = nh.advertise<std_msgs::String>("chatter", 1000);
-
-  ros::Rate loop_rate(10);
-  while (ros::ok())
-  {
-    std_msgs::String msg;
-    msg.data = "hello world";
-
-    chatter_pub.publish(msg);
-    ROS_INFO_STREAM("Published " << msg.data);
-
-    ros::spinOnce();
-
-    loop_rate.sleep();
-  }
-
-  return;
+  ROS_INFO_STREAM("Initialising RET App for " << robot_ << " with prompts: " << prompts_);
+  MoveitCustomApi moveit_api(prompts_);
+  moveit_api.initialiseMoveit(nh_);
 }
