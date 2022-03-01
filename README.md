@@ -34,5 +34,4 @@ Similarly, to run the mock test script, `./mock_test.py`
 
 
 ## TODOS
-1. InfluxDB - Server should dump all data into Influx
-2. Monitor could evaluate more criteria, like if Button2 is pressed after Button1, time between Button2 and Button1 etc..
+1. Monitor could evaluate more criteria, like if Button2 is pressed after Button1, time between Button2 and Button1 etc..
