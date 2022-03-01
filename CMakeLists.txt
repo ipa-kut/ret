@@ -10,6 +10,8 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 catkin_package(
+  LIBRARIES
+    ret_logger
   CATKIN_DEPENDS
     ur_manipulation
 )
@@ -19,6 +21,15 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(ret_application src/ret_application.cpp)
+add_library(ret_logger
+   src/ret_logger.cpp
+ )
+add_dependencies(ret_logger ${catkin_EXPORTED_TARGETS})
+target_link_libraries(ret_logger ${catkin_LIBRARIES})
+
+add_executable(ret_application
+                src/ret_application.cpp
+                src/ret_logger.cpp
+    )
 target_link_libraries(ret_application ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 install(TARGETS ret_application DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
