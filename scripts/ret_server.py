@@ -33,8 +33,9 @@ class RET_Server():
 
         print("Starting RET Server")
         self.s = socket.socket()
-        self.host = "10.4.11.132" # Used for running on Pilz PC
+        # self.host = "10.4.11.132" # Used for running on Pilz PC
         # self.host = "127.0.0.1" # Used for testing on local machine
+        self.host = "192.168.56.1" # Used for testing on UR5e PC
         self.port = 65432
         self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.s.bind((self.host, self.port))
@@ -120,15 +121,15 @@ class RET_Server():
                 if msg:
                     count += 1
                     msg_parts = msg.split(";")
-                    # print(msg_parts[0], msg_parts[1], msg_parts[2])
+                    print(msg_parts[0], msg_parts[1], msg_parts[2])
                     # msg parts are:
                     # 0 -> source of log. Options: "prbt", "rpi", "ur_native" and "ur_ros"
                     # 1 -> epoch time. Ex: "1234567.4567"
                     # 2 -> button number that was pressed. Ex: "1" or "2"
                     if msg_parts[0] == "prbt" or msg_parts[0] == "ur_native"  or msg_parts[0] == "ur_ros":
-                        with self.condi_prbt:
-                            self.prbt_log = (msg_parts[1], msg_parts[2])
-                            self.condi_prbt.notifyAll()
+                        with self.condi_robot:
+                            self.robot_log = (msg_parts[1], msg_parts[2])
+                            self.condi_robot.notifyAll()
                     elif msg_parts[0] == "rpi":
                         with self.condi_rpi:
                             self.rpi_log = (msg_parts[1], msg_parts[2])

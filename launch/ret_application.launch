@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="prompts" default="false" />
+  <arg name="robot" default="ur_ros" />
+
+  <rosparam file="$(find ret)/config/$(arg robot).yaml"/>
+  <node name="tool_pose_publisher" pkg ="ur_manipulation" type="tool_pose_publisher.py" output="screen"/>
+  <node name="ret_application" pkg ="ret" type="ret_application"
+           args="$(arg prompts) $(arg robot)" output="screen"/>
+
+</launch>
