@@ -1,0 +1,19 @@
+#location of buttons
+button_num: 2
+button1:
+  x: 0.3
+  y: 0.4
+  z: 0.012
+  R: 180
+  P: 0
+  Y: 0
+  frame: world
+
+button2:
+  x: 0.05
+  y: 0.4
+  z: 0.012
+  R: 180
+  P: 0
+  Y: 0
+  frame: world
