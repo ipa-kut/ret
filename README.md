@@ -55,8 +55,7 @@ To run with PRBT Robot, requires the [TODO: Fill this part]
 
 ### TODOS
 
-1. Update the RET Application code from the current simple square movement logic into the complete button masher logic
-2. Extract the execution parameters (robot name, ip, port, button pose calues etc..) into params loaded from configuration files under the `config` folder -> Update configs for UR5e and PRBT
-3. Test & update the application so that the same code works for UR5e and PRBT.
-
+- [x] Update the RET Application code from the current simple square movement logic into the complete button masher logic
+- [ ] Extract the execution parameters (robot name, ip, port, button pose calues etc..) into params loaded from configuration files under the `config` folder -> Update configs for UR5e and PRBT : DONE ur part
+- [ ] Test & update the application so that the same code works for UR5e and PRBT.
 
