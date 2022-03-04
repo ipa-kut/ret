@@ -1,0 +1,23 @@
+ Program
+   BeforeStart
+     var_1≔socket_open("192.168.56.1",65432)
+   Robot Program
+     Loop (var_1≟ False )
+       var_1≔socket_open("192.168.56.1",65432)
+       Wait: 0.5
+     MoveJ
+       pre_button1
+     MoveJ
+       button1
+     socket_send_string("ur_native;time;1")
+     MoveJ
+       post_button1
+     MoveJ
+       pre_button2
+     MoveJ
+       button2
+     socket_send_string("ur_native;time;2")
+     MoveJ
+       post_button2
+     var_1≔ False 
+     socket_close()
