@@ -20,8 +20,6 @@ int main(int argc, char **argv)
                      static_cast<unsigned short>(socket_port));
 }
 
-/// TODO: Refer ur_manipulation/seher_demo
-/// 4. Extract the socket ip, socket port, and the button pose values into launch args
 RETApplication::RETApplication(ros::NodeHandle nh,
                                std::string prompts,
                                std::string robot,
@@ -36,10 +34,9 @@ robot_(robot)
   logger_.initialize_socket(ip, port);
   logger_.connect_to_server();
 
-  MoveitCustomApi moveit_api(prompts_);
-  moveit_api.initialiseMoveit(nh_);
-  moveit_api.printBasicInfo();
-  moveit_api.addCollissionObjects();
+  moveit_api_.initialiseMoveit(nh_, prompts_);
+  moveit_api_.printBasicInfo();
+  moveit_api_.addCollissionObjects();
 
   ros::Publisher pub_seq = nh.advertise<std_msgs::Header>("/ur_manipulation/sequence", 1);
   ros::Publisher pub_fail = nh.advertise<std_msgs::Header>("/ur_manipulation/failure_counter", 1);
@@ -60,55 +57,52 @@ robot_(robot)
     ROS_ERROR("Robot name invalid!");
     return;
   }
-  moveit_api.moveToNamedTarget(ready_state);
+  moveit_api_.moveToNamedTarget(ready_state);
   int seq = 0;
 
   bool switcher = true;
   while (ros::ok())
   {
     ROS_INFO_STREAM("----------------------SEQ Start " << seq << "-------------------------------------");
-    LoggedButtonMash(
-        &moveit_api,
-        switcher ? target_pose1_ : target_pose2_,
-        switcher ? 1 : 2);
-    ROS_INFO("one mash done");
+    LoggedButtonMash(switcher ? target_pose1_ : target_pose2_,
+                     switcher ? 1 : 2);
     switcher = !switcher;
     std_msgs::Header msg;
     msg.stamp = ros::Time::now();
     msg.seq = seq;
     pub_seq.publish(msg);
-    msg.seq = moveit_api.failure_counter_;
+    msg.seq = moveit_api_.failure_counter_;
     pub_fail.publish(msg);
 
     ROS_INFO_STREAM("----------------------SEQ End " << seq++
-                    << " | Failure Counter = " <<  moveit_api.failure_counter_
+                    << " | Failure Counter = " <<  moveit_api_.failure_counter_
                     << "----------------");
+    ROS_INFO(" ");
   }
 }
 
-void RETApplication::LoggedButtonMash(MoveitCustomApi *moveit_api,
-                                      geometry_msgs::Pose target_pose,
+void RETApplication::LoggedButtonMash(geometry_msgs::Pose target_pose,
                                       int button_no)
 {
   ROS_INFO("-----Button %d Pre Mash Stage-----", button_no);
   target_pose.position.z += pre_mash_height_;
-  moveit_api->executeCartesianTrajtoPose(target_pose, "Pre Mash");
-  geometry_msgs::Pose curr_pos = moveit_api->move_group->getCurrentPose().pose;
-  ROS_INFO("Button%d - Pre Mash : %s", button_no, moveit_api->comparePoses(curr_pos, target_pose) ? "Success" : "Fail");
+  moveit_api_.executeCartesianTrajtoPose(target_pose, "Pre Mash");
+  geometry_msgs::Pose curr_pos = moveit_api_.move_group->getCurrentPose().pose;
+  ROS_INFO("Button%d - Pre Mash : %s", button_no, moveit_api_.comparePoses(curr_pos, target_pose) ? "Success" : "Fail");
 
   ROS_INFO("-----Button %d Mash Stage-----", button_no);
   target_pose.position.z -= pre_mash_height_;
-  moveit_api->executeCartesianTrajtoPose(target_pose, "Mash");
-  curr_pos = moveit_api->move_group->getCurrentPose().pose;
-  ROS_INFO("Button%d - Mash : %s", button_no, moveit_api->comparePoses(curr_pos, target_pose) ? "Success" : "Fail");
+  moveit_api_.executeCartesianTrajtoPose(target_pose, "Mash");
+  curr_pos = moveit_api_.move_group->getCurrentPose().pose;
+  ROS_INFO("Button%d - Mash : %s", button_no, moveit_api_.comparePoses(curr_pos, target_pose) ? "Success" : "Fail");
   logger_.setMessage(robot_ + ";" + std::to_string(ros::Time::now().toSec()) + ";" + std::to_string(button_no));
   logger_.send_data();
 
   ROS_INFO("-----Button %d Post Mash Stage-----", button_no);
   target_pose.position.z += pre_mash_height_;
-  moveit_api->executeCartesianTrajtoPose(target_pose, "Post Mash");
-  curr_pos = moveit_api->move_group->getCurrentPose().pose;
-  ROS_INFO("Button%d - Post Mash : %s", button_no, moveit_api->comparePoses(curr_pos, target_pose) ? "Success" : "Fail");
+  moveit_api_.executeCartesianTrajtoPose(target_pose, "Post Mash");
+  curr_pos = moveit_api_.move_group->getCurrentPose().pose;
+  ROS_INFO("Button%d - Post Mash : %s", button_no, moveit_api_.comparePoses(curr_pos, target_pose) ? "Success" : "Fail");
 }
 
 void RETApplication::LoadTargetPoses(ros::NodeHandle nh)
