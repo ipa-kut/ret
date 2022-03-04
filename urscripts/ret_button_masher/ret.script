@@ -1,0 +1,77 @@
+def ret():
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_gravity([0.0, 0.0, 9.82])
+  set_tcp(p[0.0,0.0,0.135,0.0,0.0,0.0])
+  set_payload(0.0)
+  set_standard_analog_input_domain(0, 1)
+  set_standard_analog_input_domain(1, 1)
+  set_tool_analog_input_domain(0, 1)
+  set_tool_analog_input_domain(1, 1)
+  set_analog_outputdomain(0, 0)
+  set_analog_outputdomain(1, 0)
+  set_tool_voltage(24)
+  set_input_actions_to_default()
+  set_safety_mode_transition_hardness(1)
+  global Left=p[-6.94355024838389E-7,-0.3573830725550047,0.5718008425121736,1.2089410868386634,1.2094433911501887,1.2088961085928163]
+  global Plane_1=p[1.8682271822079773E-5,-0.23303479558178586,0.9513305074298288,-1.5711204892335713,-1.825501810477879E-4,1.0073763764349345E-4]
+  global Point_1=p[-1.2046794464204424E-5,-0.23342744854025702,0.525722560961498,0.007905132799289517,-1.5971338779121678,0.008108905796291827]
+  global Right=p[-1.824910988089401E-5,-0.23342348399103727,0.5271515851823937,-1.2092318693058517,-1.2091554166629959,1.2092387994943108]
+  # begin: URCap Installation Node
+  #   Source: External Control, 1.0.5, FZI Research Center for Information Technology
+  #   Type: External Control
+  # end: URCap Installation Node
+  global pre_button1_p=p[.030845827216, -.395627960624, .137883850890, -.004394117789, 3.138023544461, -.001386272418]
+  global pre_button1_q=[-1.155582366512391, -1.437303011947031, -2.2737728163950246, -1.0006923419160092, 1.5706169131361698, 0.4154281230968881]
+  global button1_p=p[.030847168023, -.395635325854, .037874461390, -.004363527241, 3.138022919353, -.001394049652]
+  global button1_q=[-1.1550052478197976, -1.660306891977939, -2.407209196134678, -0.6442476959164809, 1.5696887850134917, 0.41473477740993836]
+  global post_button1_p=p[.030834444409, -.395635359157, .137895263941, -.004405611530, 3.138042639212, -.001423183448]
+  global post_button1_q=[-1.1556013266192835, -1.4372900289348145, -2.2737531661987305, -1.000711278324463, 1.5705900192260742, 0.4154019355773926]
+  global pre_button2_p=p[-.190304821494, -.395725863713, .137879595314, -.004309980107, 3.138020093766, -.001346861980]
+  global pre_button2_q=[-1.7155407110797327, -1.5488880437663575, -2.1726884841918945, -0.9921038907817383, 1.5710697174072266, -0.14474326768984014]
+  global button2_p=p[-.190322220769, -.395730884838, .037997023431, -.004250024433, 3.138033709305, -.001515770047]
+  global button2_q=[-1.7151220480548304, -1.7503744564452113, -2.2943124771118164, -0.6688860219768067, 1.5702776908874512, -0.1454985777484339]
+  global post_button2_p=p[-.190313529442, -.395727446035, .137987836240, -.004196276391, 3.138044564606, -.001471990466]
+  global post_button2_q=[-1.7155540625201624, -1.5486963552287598, -2.17257022857666, -0.9923313421062012, 1.5710577964782715, -0.14468318620790654]
+  $ 1 "BeforeStart"
+  $ 2 "var_1≔socket_open('192.168.56.1',65432)"
+  global var_1=socket_open("192.168.56.1",65432)
+  while (True):
+    $ 3 "Robot Program"
+    $ 4 "Loop (var_1≟ False )"
+    while ((var_1 ==   False  )):
+      $ 5 "var_1≔socket_open('192.168.56.1',65432)"
+      global var_1=socket_open("192.168.56.1",65432)
+      $ 6 "Wait: 0.5"
+      sleep(0.5)
+    end
+    $ 7 "MoveJ"
+    $ 8 "pre_button1"
+    movej(get_inverse_kin(pre_button1_p, qnear=pre_button1_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 9 "MoveJ"
+    $ 10 "button1"
+    movej(get_inverse_kin(button1_p, qnear=button1_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 11 "socket_send_string('ur_native;time;1')"
+    socket_send_string("ur_native;time;1")
+    $ 12 "MoveJ"
+    $ 13 "post_button1"
+    movej(get_inverse_kin(post_button1_p, qnear=post_button1_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 14 "MoveJ"
+    $ 15 "pre_button2"
+    movej(get_inverse_kin(pre_button2_p, qnear=pre_button2_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 16 "MoveJ"
+    $ 17 "button2"
+    movej(get_inverse_kin(button2_p, qnear=button2_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 18 "socket_send_string('ur_native;time;2')"
+    socket_send_string("ur_native;time;2")
+    $ 19 "MoveJ"
+    $ 20 "post_button2"
+    movej(get_inverse_kin(post_button2_p, qnear=post_button2_q), a=1.3962634015954636, v=1.0471975511965976)
+    $ 21 "var_1≔ False "
+    global var_1=  False  
+    $ 22 "socket_close()"
+    socket_close()
+  end
+end
