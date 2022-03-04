@@ -5,11 +5,11 @@ import time
 
 # host ="10.4.11.132" # Used for running on Pilz PC
 host ="192.168.56.1" # Used for running on Pilz PC
-#host = "127.0.0.1" # Used for testing on local machine
+# host = "127.0.0.1" # Used for testing on local machine
 port = 65432
 
 if __name__ == "__main__":
-    robot = "mock_robot" if sys.argv[1] == "" else sys.argv[1]
+    robot = "mock_robot" if len(sys.argv) == 1 else sys.argv[1]
     print("Creating socket objects")
     conn1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     conn2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
