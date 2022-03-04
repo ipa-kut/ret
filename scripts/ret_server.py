@@ -121,6 +121,9 @@ class RET_Server():
                 if msg:
                     count += 1
                     msg_parts = msg.split(";")
+                    # UR Native cannot send time, so we log received time instead
+                    if msg_parts[0] == "ur_native":
+                        msg_parts[1] = repr(time.time())
                     print(msg_parts[0], msg_parts[1], msg_parts[2])
                     # msg parts are:
                     # 0 -> source of log. Options: "prbt", "rpi", "ur_native" and "ur_ros"

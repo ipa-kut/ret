@@ -44,14 +44,26 @@ Similarly, to run the mock test script, `./mock_test.py`  (Optional arg: name of
 To run with UR5e Robot, requires the [`ur_manipulation`](https://github.com/ipa-kut/ur_manipulation) package to be in the same workspace.   
 To run with PRBT Robot, requires the [TODO: Fill this part]
 
-### Bringup:
+### Bringup (ROS Based test):
 
 1. Follow the instructions of the robot packagse to start the robot + moveit + rviz.    
 
 2. Then start the RET Server script as described above - USE THE CORRECT IP depending on the testing environment.
 
-3. Launch the RET Application - USE THE CORRECT LAUNCH PARAMETERS depending on the testing environment:   
+3. Start the Button Press Detection application on the Raspberry Pi.
+
+4. Launch the RET Application - USE THE CORRECT LAUNCH PARAMETERS depending on the testing environment:   
 `roslaunch ret ret_application <args>`
+
+### Bringup (UR Native)
+
+1. Start the RET Server script as described above
+
+2. Start the `ret.urp` program on the UR5e Polyscope pendant
+
+3. Start the Button Press Detection application on the Raspberry Pi.
+
+4. It may ask you to make the movement to starting position, press and hold the `Auto`option until it does. Then, press `Play` to start the loop.
 
 ### TODOS
 
