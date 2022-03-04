@@ -8,7 +8,16 @@ int main(int argc, char **argv)
   ros::AsyncSpinner spinner(1);
   spinner.start();
 
-  RETApplication app(nh, argv[1], argv[2], argv[3], std::stoi(argv[4]));
+  std::string socket_ip;
+  int socket_port;
+  if(!nh.getParam("/socket_ip", socket_ip)) ROS_ERROR("Param not set");
+  if(!nh.getParam("/socket_port", socket_port)) ROS_ERROR("Param not set");
+
+  RETApplication app(nh,
+                     argv[1],
+                     argv[2],
+                     socket_ip,
+                     static_cast<unsigned short>(socket_port));
 }
 
 /// TODO: Refer ur_manipulation/seher_demo

@@ -3,13 +3,10 @@
 
   <arg name="prompts" default="false" />
   <arg name="robot" default="ur_ros" />
-  <!-- replace to 127.0.0.1 on simulation -->
-  <arg name="ip" default="192.168.56.1"/> 
-  <arg name="port" default="65432"/>
 
   <rosparam file="$(find ret)/config/$(arg robot).yaml"/>
   <node name="tool_pose_publisher" pkg ="ur_manipulation" type="tool_pose_publisher.py" output="screen"/>
   <node name="ret_application" pkg ="ret" type="ret_application"
-           args="$(arg prompts) $(arg robot) $(arg ip) $(arg port )" output="screen"/>
+           args="$(arg prompts) $(arg robot)" output="screen"/>
 
 </launch>

@@ -2,7 +2,7 @@ robot: ur5e
 group_manip: manipulator
 max_planning_attempts: 3
 robot_settle_time: 0.4
-socket_ip: "192.168.56.1"
+socket_ip: "127.0.0.1"
 socket_port: 65432
 
 #location of buttons

@@ -2,6 +2,8 @@ robot: prbt
 group_manip: manipulator
 max_planning_attempts: 4
 robot_settle_time: 0.4
+socket_ip: "10.4.11.132"
+socket_port: 65432
 
 #location of buttons
 button1:
