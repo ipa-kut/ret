@@ -24,14 +24,14 @@ Furthermore, the **RPi HAS TO LOG THE SAME EVENT 0.5s AFTER THE ROBOT LOGS IT**.
 ### Mock Test
 A simple script that fires off some exemplary Socket logs from PRBT and RPi for testing the server.   
 Change the host variable value inside both the scripts to switch between testing on a local machine or running on Pilz PC.   
-`"169.254.60.100"` -> Used for running on Pilz PC   
-`"192.168.56.1"` -> Used for running on Pilz PC   
+`"169.254.60.100"` -> Used for running on Pilz environment     
+`"192.168.56.1"` -> Used for running on UR environment     
 `"127.0.0.1"` -> Used for testing on local machine   
 
 
 ### Bringup
 CD to scripts folder, run the server script. Ex: `./ret_server.py`   
-Similarly, to run the mock test script, `./mock_test.py`  
+Similarly, to run the mock test script, `./mock_test.py`  (Optional arg: name of mock robot)
 
 
 ### TODOS
