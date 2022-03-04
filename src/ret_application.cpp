@@ -17,9 +17,10 @@ RETApplication::RETApplication(ros::NodeHandle nh,
                                std::string prompts,
                                std::string robot,
                                std::string ip,
-                               unsigned short port) : nh_(nh),
-                                                      prompts_(prompts),
-                                                      robot_(robot)
+                               unsigned short port):
+nh_(nh),
+prompts_(prompts),
+robot_(robot)
 {
   ROS_INFO_STREAM("Initialising RET App for " << robot_ << " with prompts: " << prompts_);
 
@@ -60,7 +61,6 @@ RETApplication::RETApplication(ros::NodeHandle nh,
     LoggedButtonMash(
         &moveit_api,
         switcher ? target_pose1_ : target_pose2_,
-        0.03,
         switcher ? 1 : 2);
     ROS_INFO("one mash done");
     switcher = !switcher;
@@ -71,20 +71,24 @@ RETApplication::RETApplication(ros::NodeHandle nh,
     msg.seq = moveit_api.failure_counter_;
     pub_fail.publish(msg);
 
-    ROS_INFO_STREAM("----------------------SEQ End " << seq++ << "-------------------------------------");
+    ROS_INFO_STREAM("----------------------SEQ End " << seq++
+                    << " | Failure Counter = " <<  moveit_api.failure_counter_
+                    << "----------------");
   }
 }
 
-void RETApplication::LoggedButtonMash(MoveitCustomApi *moveit_api, geometry_msgs::Pose target_pose, double height, int button_no)
+void RETApplication::LoggedButtonMash(MoveitCustomApi *moveit_api,
+                                      geometry_msgs::Pose target_pose,
+                                      int button_no)
 {
-  ROS_INFO("-----Button%d Pre Mash Stage-----", button_no);
-  target_pose.position.z += height;
+  ROS_INFO("-----Button %d Pre Mash Stage-----", button_no);
+  target_pose.position.z += pre_mash_height_;
   moveit_api->executeCartesianTrajtoPose(target_pose, "Pre Mash");
   geometry_msgs::Pose curr_pos = moveit_api->move_group->getCurrentPose().pose;
   ROS_INFO("Button%d - Pre Mash : %s", button_no, moveit_api->comparePoses(curr_pos, target_pose) ? "Success" : "Fail");
 
   ROS_INFO("-----Button %d Mash Stage-----", button_no);
-  target_pose.position.z -= height;
+  target_pose.position.z -= pre_mash_height_;
   moveit_api->executeCartesianTrajtoPose(target_pose, "Mash");
   curr_pos = moveit_api->move_group->getCurrentPose().pose;
   ROS_INFO("Button%d - Mash : %s", button_no, moveit_api->comparePoses(curr_pos, target_pose) ? "Success" : "Fail");
@@ -92,7 +96,7 @@ void RETApplication::LoggedButtonMash(MoveitCustomApi *moveit_api, geometry_msgs
   logger_.send_data();
 
   ROS_INFO("-----Button %d Post Mash Stage-----", button_no);
-  target_pose.position.z += height;
+  target_pose.position.z += pre_mash_height_;
   moveit_api->executeCartesianTrajtoPose(target_pose, "Post Mash");
   curr_pos = moveit_api->move_group->getCurrentPose().pose;
   ROS_INFO("Button%d - Post Mash : %s", button_no, moveit_api->comparePoses(curr_pos, target_pose) ? "Success" : "Fail");
@@ -101,12 +105,12 @@ void RETApplication::LoggedButtonMash(MoveitCustomApi *moveit_api, geometry_msgs
 void RETApplication::LoadTargetPoses(ros::NodeHandle nh)
 {
   double R, P, Y;
-  nh.getParam("/button1/x", target_pose1_.position.x);
-  nh.getParam("/button1/y", target_pose1_.position.y);
-  nh.getParam("/button1/z", target_pose1_.position.z);
-  nh.getParam("/button1/R", R);
-  nh.getParam("/button1/P", P);
-  nh.getParam("/button1/Y", Y);
+  if (!nh.getParam("/button1/x", target_pose1_.position.x)) ROS_ERROR("Param not set");
+  if (!nh.getParam("/button1/y", target_pose1_.position.y)) ROS_ERROR("Param not set");
+  if (!nh.getParam("/button1/z", target_pose1_.position.z)) ROS_ERROR("Param not set");
+  if (!nh.getParam("/button1/R", R)) ROS_ERROR("Param not set");
+  if (!nh.getParam("/button1/P", P)) ROS_ERROR("Param not set");
+  if (!nh.getParam("/button1/Y", Y)) ROS_ERROR("Param not set");
   target_pose1_.orientation = tf::createQuaternionMsgFromRollPitchYaw(angles::from_degrees(R), angles::from_degrees(P), angles::from_degrees(Y));
   ROS_INFO("Target pose 1 set to (x:%f, y:%f, z:%f, Roll:%f, Pitch:%f, Yaw:%f)",
            target_pose1_.position.x,
@@ -114,16 +118,19 @@ void RETApplication::LoadTargetPoses(ros::NodeHandle nh)
            target_pose1_.position.z,
            R, P, Y);
 
-  nh.getParam("/button2/x", target_pose2_.position.x);
-  nh.getParam("/button2/y", target_pose2_.position.y);
-  nh.getParam("/button2/z", target_pose2_.position.z);
-  nh.getParam("/button2/R", R);
-  nh.getParam("/button2/P", P);
-  nh.getParam("/button2/Y", Y);
+  if (!nh.getParam("/button2/x", target_pose2_.position.x)) ROS_ERROR("Param not set");
+  if (!nh.getParam("/button2/y", target_pose2_.position.y)) ROS_ERROR("Param not set");
+  if (!nh.getParam("/button2/z", target_pose2_.position.z)) ROS_ERROR("Param not set");
+  if (!nh.getParam("/button2/R", R)) ROS_ERROR("Param not set");
+  if (!nh.getParam("/button2/P", P)) ROS_ERROR("Param not set");
+  if (!nh.getParam("/button2/Y", Y)) ROS_ERROR("Param not set");
   target_pose2_.orientation = tf::createQuaternionMsgFromRollPitchYaw(angles::from_degrees(R), angles::from_degrees(P), angles::from_degrees(Y));
   ROS_INFO("Target pose 2 set to (x:%f, y:%f, z:%f, Roll:%f, Pitch:%f, Yaw:%f)",
            target_pose2_.position.x,
            target_pose2_.position.y,
            target_pose2_.position.z,
            R, P, Y);
+
+  if (!nh.getParam("/pre_mash_height", pre_mash_height_)) ROS_ERROR("Param not set");
+  ROS_INFO("Pre mash height set to %f", pre_mash_height_);
 }

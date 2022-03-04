@@ -2,3 +2,24 @@ robot: prbt
 group_manip: manipulator
 max_planning_attempts: 4
 robot_settle_time: 0.4
+
+#location of buttons
+button1:
+  x: 0.05
+  y: -0.45
+  z: 0.075
+  R: 180
+  P: 0
+  Y: 0
+  frame: world
+
+button2:
+  x: -0.1
+  y: -0.45
+  z: 0.075
+  R: 180
+  P: 0
+  Y: 0
+  frame: world
+
+pre_mash_height: 0.1  # height above the button for the pre/post mash poses
