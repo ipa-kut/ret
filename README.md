@@ -44,7 +44,7 @@ Similarly, to run the mock test script, `./mock_test.py`  (Optional arg: name of
 To run with UR5e Robot, requires the [`ur_manipulation`](https://github.com/ipa-kut/ur_manipulation) package to be in the same workspace.   
 To run with PRBT Robot, requires the [TODO: Fill this part]
 
-### Bringup (ROS Based test):
+### Bringup (UR5e ROS Based test):
 
 1. Follow the instructions of the robot packagse to start the robot + moveit + rviz.    
 
@@ -53,7 +53,9 @@ To run with PRBT Robot, requires the [TODO: Fill this part]
 3. Start the Button Press Detection application on the Raspberry Pi.
 
 4. Launch the RET Application - USE THE CORRECT LAUNCH PARAMETERS depending on the testing environment:   
-`roslaunch ret ret_application <args>`
+`roslaunch ret ret_application.launch <args>`
+for UR5e:
+`roslaunch ret ret_application.launch robot:=ur_ros`
 
 ### Bringup (UR Native)
 
@@ -70,4 +72,7 @@ To run with PRBT Robot, requires the [TODO: Fill this part]
 - [x] Update the RET Application code from the current simple square movement logic into the complete button masher logic
 - [ ] Extract the execution parameters (robot name, ip, port, button pose calues etc..) into params loaded from configuration files under the `config` folder -> Update configs for UR5e and PRBT : DONE ur part
 - [ ] Test & update the application so that the same code works for UR5e and PRBT.
+- [ ] Check the planning frame for ur for there's some pose difference between native_driver and ros_driver
+- [ ] Feature: automatically return ready pose when socket connection failed?
+- [ ] Feature: 
 
