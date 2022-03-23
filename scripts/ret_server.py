@@ -33,9 +33,9 @@ class RET_Server():
 
         print("Starting RET Server")
         self.s = socket.socket()
-        # self.host = "10.4.11.132" # Used for running on Pilz PC
+        self.host = "10.4.11.132" # Used for running on Pilz PC
         # self.host = "127.0.0.1" # Used for testing on local machine
-        self.host = "192.168.56.1" # Used for testing on UR5e PC
+        # self.host = "192.168.56.1" # Used for testing on UR5e PC
         self.port = 65432
         self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.s.bind((self.host, self.port))
