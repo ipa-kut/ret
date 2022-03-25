@@ -81,9 +81,9 @@ for UR5e:
 |server time|event description|mismatch / timeout|
 
 - Comments:
- 1. When retrieving data for GUI, the measurement needs to be switched manuelly for each panel
- 2. Tag value can't be selected alone, not able to show current working robot or the data source
- 3. Not enough for analysing error when one occurs: maybe data sent both from robot and rpi
+ 1. (-) When retrieving data for GUI, the measurement needs to be switched manuelly for each panel
+ 2. (-) Tag value can't be selected alone, not able to show current working robot or the data source
+ 3. (-) Not enough for analysing error when one occurs: maybe data sent both from robot and rpi
 
 ##### Suggesting: two measurement without timestamp
 - RET_Logs
@@ -92,16 +92,16 @@ for UR5e:
 |server time|button NO.|time mashing the button|data source: robot / rpi|data source to be selected|button NO. for where clause|
 
 - RET_EVENTS
-|time|description::field|type::tag|datetime::field|
+|time|description::field|type::tag|
 |----|----|----|----|
-|server time|event description|mismatch / timeout|time event occurs|
+|server time|event description|mismatch / timeout|
 
 - Comments:
  1. No need to switch measurements everyday
  2. All values can be selected alone
- 3. Timestamp for event for analysis
- 4. Maybe the measurement is too large to maintain?
- 5. In Grafana, the where clause does not support field value
+ 3. Maybe the measurement is too large to maintain?
+ 4. In Grafana, the where clause does not support field value
+ 5. (-) Not enough for analysing error when one occurs: maybe data sent both from robot and rpi 
 
 
 ### TODOS

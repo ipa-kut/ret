@@ -154,22 +154,24 @@ class RET_Server():
     def write_log_to_influxdb(self, log):
         json = [{
             
-            "measurement": "RET_Logs_"+datetime.today().strftime('%Y-%m-%d'),
+            "measurement": "RET_Logs",
             "tags": {
-                "source": log[0]
+                "source": log[0],
+                "button": int(log[2]),
             },
             
             "time": datetime.utcfromtimestamp(float(log[1])).strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
             "fields": {
                 "datetime": datetime.utcfromtimestamp(float(log[1])).strftime('%Y-%m-%d %H:%M:%S.%fZ')[:-5],
                 "button": int(log[2]),
+                "source": log[0],
             }
         }]
         self.client.write_points(json)
 
     def write_event_to_influxdb(self, event_type, event_description):
         json = [{
-            "measurement": "RET_Events_"+datetime.today().strftime('%Y-%m-%d'),
+            "measurement": "RET_Events",
             "tags": {
                 "type": event_type,
             },
