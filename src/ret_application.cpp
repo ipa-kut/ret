@@ -44,13 +44,9 @@ robot_(robot)
 
   ROS_INFO("Moving to ready pose");
   std::string ready_state;
-  if (robot == "ur_ros")
+  if (robot == "ur_ros" || robot == "prbt")
   {
     ready_state = "ready";
-  }
-  else if (robot == "prbt")
-  {
-    ready_state = "all-zeros";
   }
   else
   {

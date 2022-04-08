@@ -41,7 +41,7 @@ Similarly, to run the mock test script, `./mock_test.py`  (Optional arg: name of
 ## RET Application
 
 To run with UR5e Robot, requires the [`ur_manipulation`](https://github.com/ipa-kut/ur_manipulation) package to be in the same workspace.   
-To run with PRBT Robot, requires the [`ur_manipualtion`](https://github.com/ipa-kut/ur_manipulation) and [`pilz_robots`](https://github.com/PilzDE/pilz_robots) in same workspace.
+To run with PRBT Robot, requires the [`ur_manipualtion`](https://github.com/ipa-kut-cl/ur_manipulation) and [`pilz_robots`](https://github.com/IPA-KUT-CL/pilz_robots) in same workspace.
 
 ### Bringup (UR5e ROS Based test):
 
@@ -69,27 +69,30 @@ for UR5e:
 ### Bringup (prbt)
 1. Start the RET Server script as described above
 
-2. Follow the instructions from [`pilz_robots`](https://github.com/IPA-KUT-CL/pilz_robots_ret#on-robot)
+2. Follow the instructions from [`pilz_robots`](https://github.com/IPA-KUT-CL/pilz_robots#on-robot)
 
-3. Launch ret application by `roslaunch ret ret_application robot:=prbt sim:=false`, add attribute `prompt:=true` if needed
+3. Launch ret application. If run the robot alone without server, set `sim` to `true`. Add `prompt:=true` if needed.
+   ```roslaunch ret ret_application.launch robot:=prbt sim:=false``` 
 
 ### Simulation (prbt)
-1. Follow the instructions from [`pilz_robots`](https://github.com/IPA-KUT-CL/pilz_robots_ret#simulation)
+1. Follow the instructions from [`pilz_robots`](https://github.com/IPA-KUT-CL/pilz_robots#simulation)
    
-2. launch the ret application by `roslaunch ret ret_application robot:=prbt sim:=true`, add attribute `prompt:=true` if needed
+2. launch the ret application by `roslaunch ret ret_application.launch robot:=prbt sim:=true`, add attribute `prompt:=true` if needed
 
 ### Database structure
 
 #### before : two measurements with timestamp
-- RET_Logs_<Datetime>
-|time|button::field|datetime::field|source::tag|
-|----|----|----|----|
-|server time|button NO.|time mashing the button|data source: robot / rpi|
+- RET_Logs_Datetime
 
-- RET_EVENTS_<Datetime>
-|time|description::field|type::tag|
-|----|----|----|
-|server time|event description|mismatch / timeout|
+    | time | button::field | datetime::field | source::tag |
+    | ---- | ---- | ---- | ---- |
+    | server time | button NO. | time mashing the button | data source: robot / rpi |
+
+- RET_EVENTS_Datetime
+
+    |time|description::field|type::tag|
+    |----|----|----|
+    |server time|event description|mismatch / timeout|
 
 - Comments:
  1. (-) When retrieving data for GUI, the measurement needs to be switched manuelly for each panel
@@ -98,14 +101,16 @@ for UR5e:
 
 ##### now: two measurement without timestamp
 - RET_Logs
-|time|button::field|datetime::field|source::tag|source::field|button::tag|
-|----|----|----|----|----|----|
-|server time|button NO.|time mashing the button|data source: robot / rpi|data source to be selected|button NO. for where clause|
+
+    |time|button::field|datetime::field|source::tag|source::field|button::tag|
+    |----|----|----|----|----|----|
+    |server time|button NO.|time mashing the button|data source: robot / rpi|data source to be selected|button NO. for where clause|
 
 - RET_EVENTS
-|time|description::field|type::tag|
-|----|----|----|----|
-|server time|event description|mismatch / timeout|
+  
+    |time|description::field|type::tag|
+    |----|----|----|
+    |server time|event description|mismatch / timeout|
 
 - Comments:
  1. No need to switch measurements everyday
