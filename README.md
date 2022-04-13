@@ -28,7 +28,6 @@ Change the host variable value inside both the scripts to switch between testing
 `"192.168.56.1"` -> Used for running on UR environment     
 `"127.0.0.1"` -> Used for testing on local machine   
 
-
 ### Bringup
 CD to scripts folder, run the server script. Ex: `./ret_server.py`   
 Similarly, to run the mock test script, `./mock_test.py`  (Optional arg: name of mock robot)
@@ -41,31 +40,42 @@ Similarly, to run the mock test script, `./mock_test.py`  (Optional arg: name of
 
 ## RET Application
 
-To run with UR5e Robot, requires the [`ur_manipulation`](https://github.com/ipa-kut/ur_manipulation) package to be in the same workspace.   
-To run with PRBT Robot, requires the [TODO: Fill this part]
+To run with UR5e Robot, requires the [`ur_manipulation`](https://github.com/ipa-kut/ur_manipulation) and its dependencies to be in the same workspace.   
+To run with PRBT Robot, requires the [`ur_manipulation`](https://github.com/ipa-kut/ur_manipulation) and [`pilz_robots`](https://github.com/ipa-alb/pilz_robots) to be in the same workspace **Under debugging**
 
 ### Bringup (UR5e ROS Based test):
 
-1. Follow the instructions of the robot packagse to start the robot + moveit + rviz.    
+1. Follow the instructions of the robot packages to start the robot + moveit + rviz[link](https://github.com/ipa-kut/ur_manipulation#ur5e-real-robot).
 
-2. Then start the RET Server script as described above - USE THE CORRECT IP depending on the testing environment.
+2. Then start the [RET Server script](https://github.com/ipa-kut/ret#bringup) as described above - USE THE [CORRECT IP](https://github.com/ipa-kut/ret#mock-test) depending on the testing environment.
 
 3. Start the Button Press Detection application on the Raspberry Pi.
 
 4. Launch the RET Application - USE THE CORRECT LAUNCH PARAMETERS depending on the testing environment:   
 `roslaunch ret ret_application.launch <args>`
 for UR5e:
-`roslaunch ret ret_application.launch robot:=ur_ros`
+`roslaunch ret ret_application.launch robot:=ur_ros sim:=false`
 
 ### Bringup (UR Native)
 
-1. Start the RET Server script as described above
+1. Start the [RET Server script](https://github.com/ipa-kut/ret#bringup) as described above
 
 2. Start the `ret.urp` program on the UR5e Polyscope pendant
 
 3. Start the Button Press Detection application on the Raspberry Pi.
 
-4. It may ask you to make the movement to starting position, press and hold the `Auto`option until it does. Then, press `Play` to start the loop.
+4. The pendant may ask you to make the movement to starting position, press and hold the `Auto` option until it does. Then, press `Play` to start the loop.
+
+### Bringup (prbt)
+1. Connect pc with robot by both internet cable and USB, set the PCI connection to prbt with `IP: 169.254.60.100, Netmask: 255.255.255.0`, check the connection by `ping 169.254.60.100`
+   
+2. Set the can connection to robot by `sudo ip link set can0 up type can bitrate 1000000`, when reboot the robot, better to set the can down by `sudo ip link set can0 down` and bring it up again
+
+3. Start the RET Server script as described above
+
+4. launch the robot controller and rviz by `roslaunch prbt_moveit_config moveit_planning_execution.launch sim:=false pipeline:=ompl`
+
+5. Launch ret application by `roslaunch ret ret_application robot:=prbt sim:=false`, add attribute `prompt:=true` if needed
 
 ### TODOS
 
