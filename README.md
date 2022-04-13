@@ -156,12 +156,8 @@ Evaluation logic in the RET Server Monitor can also log failures as events in th
 ### Grafana GUI panel
 1. Check grafana server status: `sudo service grafana-server status`
 2. If the server failed, restart by `sudo service grafana-server restart`
-3. Open `localhost:3000` in browser and log in
-4. Select RET_Panel
+3. Open `localhost:3000` in browser and log in (default User ID/Pwd: `admin`/`admin`)
+4. Import the RET panel json from `ret/config/RET_panel-1649863224216.json`
+4. Open the RET_Panel
 
 ![RET_Panel](./media/Screenshot%20from%202022-04-06%2015-22-48.png)
-
-### Todos
-
--[] Export the Grafana panel .json and save it in this repo under `ret/config`
-
