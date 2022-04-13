@@ -40,8 +40,8 @@ Similarly, to run the mock test script, `./mock_test.py`  (Optional arg: name of
 
 ## RET Application
 
-To run with UR5e Robot, requires the [`ur_manipulation`](https://github.com/ipa-kut/ur_manipulation) and its dependencies to be in the same workspace.   
-To run with PRBT Robot, requires the [`ur_manipulation`](https://github.com/ipa-kut/ur_manipulation) and [`pilz_robots`](https://github.com/ipa-alb/pilz_robots) to be in the same workspace **Under debugging**
+To run with UR5e Robot, requires the [`ur_manipulation`](https://github.com/ipa-kut/ur_manipulation) package to be in the same workspace.   
+To run with PRBT Robot, requires the [`ur_manipualtion`](https://github.com/ipa-kut/ur_manipulation) and [`pilz_robots`](https://github.com/PilzDE/pilz_robots) in same workspace.
 
 ### Bringup (UR5e ROS Based test):
 
@@ -67,22 +67,22 @@ for UR5e:
 4. The pendant may ask you to make the movement to starting position, press and hold the `Auto` option until it does. Then, press `Play` to start the loop.
 
 ### Bringup (prbt)
-1. Connect pc with robot by both internet cable and USB, set the PCI connection to prbt with `IP: 169.254.60.100, Netmask: 255.255.255.0`, check the connection by `ping 169.254.60.100`
+1. Start the RET Server script as described above
+
+2. Follow the instructions from [`pilz_robots`](https://github.com/IPA-KUT-CL/pilz_robots_ret#on-robot)
+
+3. Launch ret application by `roslaunch ret ret_application robot:=prbt sim:=false`, add attribute `prompt:=true` if needed
+
+### Simulation (prbt)
+1. Follow the instructions from [`pilz_robots`](https://github.com/IPA-KUT-CL/pilz_robots_ret#simulation)
    
-2. Set the can connection to robot by `sudo ip link set can0 up type can bitrate 1000000`, when reboot the robot, better to set the can down by `sudo ip link set can0 down` and bring it up again
-
-3. Start the RET Server script as described above
-
-4. launch the robot controller and rviz by `roslaunch prbt_moveit_config moveit_planning_execution.launch sim:=false pipeline:=ompl`
-
-5. Launch ret application by `roslaunch ret ret_application robot:=prbt sim:=false`, add attribute `prompt:=true` if needed
+2. launch the ret application by `roslaunch ret ret_application robot:=prbt sim:=true`, add attribute `prompt:=true` if needed
 
 ### TODOS
 
 - [x] Update the RET Application code from the current simple square movement logic into the complete button masher logic
-- [ ] Extract the execution parameters (robot name, ip, port, button pose calues etc..) into params loaded from configuration files under the `config` folder -> Update configs for UR5e and PRBT : DONE ur part
-- [ ] Test & update the application so that the same code works for UR5e and PRBT.
-- [ ] Check the planning frame for ur for there's some pose difference between native_driver and ros_driver
+- [x] Extract the execution parameters (robot name, ip, port, button pose calues etc..) into params loaded from configuration files under the `config` folder -> Update configs for UR5e and PRBT : DONE ur part
+- [x] Test & update the application so that the same code works for UR5e and PRBT.
+- [x] Check the planning frame for ur for there's some pose difference between native_driver and ros_driver
 - [ ] Feature: automatically return ready pose when socket connection failed?
-- [ ] Feature: 
 

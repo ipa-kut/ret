@@ -36,7 +36,7 @@ robot_(robot)
 
   moveit_api_.initialiseMoveit(nh_, prompts_);
   moveit_api_.printBasicInfo();
-  moveit_api_.addCollissionObjects();
+  moveit_api_.addCollisionObjects();
 
   ros::Publisher pub_seq = nh.advertise<std_msgs::Header>("/ur_manipulation/sequence", 1);
   ros::Publisher pub_fail = nh.advertise<std_msgs::Header>("/ur_manipulation/failure_counter", 1);
