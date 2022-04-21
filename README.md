@@ -40,8 +40,8 @@ Similarly, to run the mock test script, `./mock_test.py`  (Optional arg: name of
 
 ## RET Application
 
-To run with UR5e Robot, requires the [`ur_manipulation`](https://github.com/ipa-kut/ur_manipulation) and its dependencies to be in the same workspace.   
-To run with PRBT Robot, requires the [`ur_manipulation`](https://github.com/ipa-kut/ur_manipulation) and [`pilz_robots`](https://github.com/ipa-alb/pilz_robots) to be in the same workspace **Under debugging**
+To run with UR5e Robot, requires the [`ur_manipulation`](https://github.com/ipa-kut/ur_manipulation) package to be in the same workspace.   
+To run with PRBT Robot, requires the [`ur_manipualtion`](https://github.com/ipa-kut-cl/ur_manipulation) and [`pilz_robots`](https://github.com/IPA-KUT-CL/pilz_robots) in same workspace.
 
 ### Bringup (UR5e ROS Based test):
 
@@ -62,27 +62,77 @@ for UR5e:
 
 2. Start the `ret.urp` program on the UR5e Polyscope pendant
 
-3. Start the Button Press Detection application on the Raspberry Pi.
+3. Start the Button Press Detection application on the Raspberry Pi, **run with sudo to avoid GPIO runtime error**.
 
 4. The pendant may ask you to make the movement to starting position, press and hold the `Auto` option until it does. Then, press `Play` to start the loop.
 
 ### Bringup (prbt)
-1. Connect pc with robot by both internet cable and USB, set the PCI connection to prbt with `IP: 169.254.60.100, Netmask: 255.255.255.0`, check the connection by `ping 169.254.60.100`
+1. Start the RET Server script as described above
+
+2. Follow the instructions from [`pilz_robots`](https://github.com/IPA-KUT-CL/pilz_robots#on-robot)
+
+3. Launch ret application. If run the robot alone without server, set `sim` to `true`. Add `prompt:=true` if needed.
+   ```roslaunch ret ret_application.launch robot:=prbt sim:=false``` 
+
+### Simulation (prbt)
+1. Follow the instructions from [`pilz_robots`](https://github.com/IPA-KUT-CL/pilz_robots#simulation)
    
-2. Set the can connection to robot by `sudo ip link set can0 up type can bitrate 1000000`, when reboot the robot, better to set the can down by `sudo ip link set can0 down` and bring it up again
+2. launch the ret application by `roslaunch ret ret_application.launch robot:=prbt sim:=true`, add attribute `prompt:=true` if needed
 
-3. Start the RET Server script as described above
+### Database structure
 
-4. launch the robot controller and rviz by `roslaunch prbt_moveit_config moveit_planning_execution.launch sim:=false pipeline:=ompl`
+#### before : two measurements with timestamp
+- RET_Logs_Datetime
 
-5. Launch ret application by `roslaunch ret ret_application robot:=prbt sim:=false`, add attribute `prompt:=true` if needed
+    | time | button::field | datetime::field | source::tag |
+    | ---- | ---- | ---- | ---- |
+    | server time | button NO. | time mashing the button | data source: robot / rpi |
+
+- RET_EVENTS_Datetime
+
+    |time|description::field|type::tag|
+    |----|----|----|
+    |server time|event description|mismatch / timeout|
+
+- Comments:
+ 1. (-) When retrieving data for GUI, the measurement needs to be switched manuelly for each panel
+ 2. (-) Tag value can't be selected alone, not able to show current working robot or the data source
+ 3. (-) Not enough for analysing error when one occurs: maybe data sent both from robot and rpi
+
+##### now: two measurement without timestamp
+- RET_Logs
+
+    |time|button::field|datetime::field|source::tag|source::field|button::tag|
+    |----|----|----|----|----|----|
+    |server time|button NO.|time mashing the button|data source: robot / rpi|data source to be selected|button NO. for where clause|
+
+- RET_EVENTS
+  
+    |time|description::field|type::tag|
+    |----|----|----|
+    |server time|event description|mismatch / timeout|
+
+- Comments:
+ 1. No need to switch measurements everyday
+ 2. All values can be selected alone
+ 3. Maybe the measurement is too large to maintain?
+ 4. In Grafana, the where clause does not support field value
+ 5. (-) Not enough for analysing error when one occurs: maybe data sent both from robot and rpi 
+
+### GUI panel
+1. check grafana server status: `sudo service grafana-server status`
+2. if the server failed, restart by `sudo service grafana-server restart`
+3. open `localhost:3000` in browser and log in
+4. select RET_Panel
+
+![RET_Panel](./media/Screenshot%20from%202022-04-06%2015-22-48.png)
 
 ### TODOS
 
 - [x] Update the RET Application code from the current simple square movement logic into the complete button masher logic
-- [ ] Extract the execution parameters (robot name, ip, port, button pose calues etc..) into params loaded from configuration files under the `config` folder -> Update configs for UR5e and PRBT : DONE ur part
-- [ ] Test & update the application so that the same code works for UR5e and PRBT.
-- [ ] Check the planning frame for ur for there's some pose difference between native_driver and ros_driver
+- [x] Extract the execution parameters (robot name, ip, port, button pose calues etc..) into params loaded from configuration files under the `config` folder -> Update configs for UR5e and PRBT : DONE ur part
+- [x] Test & update the application so that the same code works for UR5e and PRBT.
+- [x] Check the planning frame for ur for there's some pose difference between native_driver and ros_driver
 - [ ] Feature: automatically return ready pose when socket connection failed?
-- [ ] Feature: 
+- [x] Database structure
 

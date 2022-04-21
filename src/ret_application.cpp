@@ -36,7 +36,7 @@ robot_(robot)
 
   moveit_api_.initialiseMoveit(nh_, prompts_);
   moveit_api_.printBasicInfo();
-  moveit_api_.addCollissionObjects();
+  moveit_api_.addCollisionObjects();
 
   ros::Publisher pub_seq = nh.advertise<std_msgs::Header>("/ur_manipulation/sequence", 1);
   ros::Publisher pub_fail = nh.advertise<std_msgs::Header>("/ur_manipulation/failure_counter", 1);
@@ -44,13 +44,9 @@ robot_(robot)
 
   ROS_INFO("Moving to ready pose");
   std::string ready_state;
-  if (robot == "ur_ros")
+  if (robot == "ur_ros" || robot == "prbt")
   {
     ready_state = "ready";
-  }
-  else if (robot == "prbt")
-  {
-    ready_state = "all-zeros";
   }
   else
   {
