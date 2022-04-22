@@ -2,7 +2,7 @@ robot: ur5e
 group_manip: manipulator
 max_planning_attempts: 3
 robot_settle_time: 0.4
-socket_ip: "10.4.11.132"
+socket_ip: "192.168.56.1"
 socket_port: 65432
 
 #location of buttons
@@ -24,14 +24,14 @@ button2:
   Y: 0
   frame: base_link
 
-Collision:
+collision:
   # offset from wall to base [m]
   backwall: 0.28
   leftwall: 0.46
   rightwall: 0.5
   bottom: -0.01
 
-Cell:
+cell:
   # dimension of the working cell [m]
   x_dim: 0.96
   y_dim: 1.47
